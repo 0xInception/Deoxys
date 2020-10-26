@@ -12,6 +12,7 @@ namespace Deoxys.Pipeline.DevirtualizationStages
         {
             PurgeCtor(context);
             RemoveDLL(context);
+            context.Cfg.DeclaringType.Fields.Remove(context.Cfg);
             return true;
         }
 

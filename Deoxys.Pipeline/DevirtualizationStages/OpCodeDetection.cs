@@ -29,17 +29,32 @@ namespace Deoxys.Pipeline.DevirtualizationStages
         {
             var opCodes = new List<NashaOpCode>();
             var reader = new BinaryReader(new MemoryStream(opcodeValues));
-            reader.BaseStream.Position += 8;
+            reader.BaseStream.Position += 4;
+            var first = reader.ReadInt32();
             //OpCode scrambling seems to have it's flaws.
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 var opc = ReadOpCode(reader);
-                if (opc.Code == (NashaCode) 777 || opc.Code == (NashaCode)1337) // seems to be the exit code
+                if (opc.Code > (NashaCode)byte.MaxValue)
                     break;
                 opCodes.Add(opc);
-                context.Logger.Info($"Found OpCode {opc.Code} with Random Value {opc.RandomValue}");
             }
-            return opCodes;
+            
+            var newCodes = new List<NashaOpCode>();
+            
+            int currentId = first;
+            for (int i = 0; i < opCodes.Count; i++)
+            {
+                if (currentId > byte.MaxValue)
+                    break;
+                var opc = opCodes.First(q => q.Code == (NashaCode) currentId);
+                var newOpCode = new NashaOpCode((NashaCode) i, opc.RandomValue);
+                newCodes.Add(newOpCode);
+                context.Logger.Info($"Found OpCode {newOpCode.Code} with Random Value {newOpCode.RandomValue}");
+                currentId = opc.NextId;
+            }
+            
+            return newCodes;
         }
 
         private NashaOpCode ReadOpCode(BinaryReader reader)
@@ -49,7 +64,8 @@ namespace Deoxys.Pipeline.DevirtualizationStages
             opc.Code = (NashaCode)reader.ReadInt32();
             reader.BaseStream.Position += 4;
             opc.RandomValue = reader.ReadInt32();
-            reader.BaseStream.Position += 8;
+            reader.BaseStream.Position += 4;
+            opc.NextId = reader.ReadInt32();
             return opc;
         }
     }
