@@ -9,11 +9,11 @@ namespace Deoxys
 {
     internal class Program
     {
-        private static readonly Version CurrentVersion = new Version("1.0.1");
+        private static readonly Version CurrentVersion = new Version("1.0.2");
 
         public static void Main(string[] args)
         {
-            Console.Title = $"Deoxys - Version {CurrentVersion}";
+            Console.Title = $"Deoxys - Version {CurrentVersion} | https://github.com/StackUnderflowRE/Deoxys";
             ILogger logger = new ConsoleLogger();
             
             if (args.Length == 0)
@@ -62,7 +62,7 @@ ______
                 WriteLineMiddle(line,Color.Red);
             }
             Console.WriteLine();
-            WriteLineMiddle($"Version - {CurrentVersion}",Color.CornflowerBlue);
+            WriteLineMiddle($"Version - {CurrentVersion} | https://github.com/StackUnderflowRE/Deoxys",Color.CornflowerBlue);
             Console.WriteLine();
             Context.Logger.Success($"Loaded file {Context.Module.Name}");
         }
